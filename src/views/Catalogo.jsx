@@ -1,20 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import React from "react";
+import { Container } from "react-bootstrap";
 
-const Inicio = () => {
-
+const Catalogo = () => {
     return (
-        <Container className="mt-3">
-            <Row className="align-items-center">
-                <Col>
-                    <h2>
-                        <i className="bi-house-fill me-2"></i>
-                        Inicio
-                    </h2>
-                </Col>
-            </Row>
+        <Container>
+            <h1>Catálogo</h1>
+            <p>Página del catálogo.</p>
         </Container>
     );
 };
 
-export default Inicio;
+export default Catalogo;

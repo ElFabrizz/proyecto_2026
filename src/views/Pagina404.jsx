@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 
-const Inicio = () => {
+const Pagina404 = () => {
 
     return (
         <Container className="mt-3">
@@ -9,12 +9,13 @@ const Inicio = () => {
                 <Col>
                     <h2>
                         <i className="bi-house-fill me-2"></i>
-                        Inicio
+                        Catalogo
                     </h2>
+
                 </Col>
             </Row>
         </Container>
     );
 };
 
-export default Inicio;
+export default Pagina404;
