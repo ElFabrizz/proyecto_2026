@@ -154,7 +154,7 @@ const Categorias = () => {
     // Métodos auxiliares
     const abrirModalEdicion = (categoria) => {
         setCategoriaEditar({
-            id_categoria: categoria.id_categorias,
+            id_categorias: categoria.id_categorias,
             nombre_categoria: categoria.nombre_categoria,
             descripcion_categoria: categoria.descripcion_categoria,
         });
