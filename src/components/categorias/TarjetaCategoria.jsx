@@ -114,6 +114,14 @@ const TarjetaCategoria = ({ categorias, abrirModalEdicion, abrirModalEliminacion
                                             >
                                                 <i className="bi bi-trash"></i>
                                             </Button>
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
+                                                className="m-1"
+                                                onClick={() => generarPDFCategoria(categoria)}
+                                            >
+                                                <i className="bi bi-file-earmark-pdf"></i>
+</Button>
                                         </div>
                                     </div>
                                 )}

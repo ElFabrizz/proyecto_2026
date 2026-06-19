@@ -10,6 +10,9 @@ import TablaCategorias from "../components/categorias/TablaCategorias";
 import TarjetaCategoria from "../components/categorias/TarjetaCategoria";
 import CuadroBusquedas from "../components/busquedas/CuadroBusquedas";
 import Paginacion from "../components/ordenamiento/Paginacion";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 
 const Categorias = () => {
     const [toast, setToast] = useState({ mostrar: false, mensaje: "", tipo: "" });
@@ -207,6 +210,55 @@ const Categorias = () => {
         paginaActual * registrosPorPagina
     );
 
+    const generarPDFCategoria = (categoria) => {
+        const doc = new jsPDF();
+
+        doc.setFontSize(18);
+        doc.text("Reporte de Categoría", 14, 20);
+
+        doc.line(14, 25, 195, 25);
+
+        autoTable(doc, {
+            startY: 35,
+            head: [["Campo", "Valor"]],
+            body: [
+                ["ID", categoria.id_categorias],
+                ["Nombre", categoria.nombre_categoria],
+                ["Descripción", categoria.descripcion_categoria],
+            ],
+        });
+
+        doc.save(`categoria_${categoria.id_categorias}.pdf`);
+    };
+
+    const copiarCategoria = async (categoria) => {
+        if (!categoria) return;
+
+        const texto = `
+ID: ${categoria.id_categorias}
+Categoría: ${categoria.nombre_categoria}
+Descripción: ${categoria.descripcion_categoria || "Sin descripción"}
+    `;
+
+        try {
+            await navigator.clipboard.writeText(texto);
+
+            setToast({
+                mostrar: true,
+                mensaje: `Categoría "${categoria.nombre_categoria}" copiada al portapapeles.`,
+                tipo: "exito",
+            });
+        } catch (error) {
+            console.error("Error al copiar:", error);
+
+            setToast({
+                mostrar: true,
+                mensaje: "No se pudo copiar al portapapeles.",
+                tipo: "error",
+            });
+        }
+    };
+
     return (
         <Container className="mt-3">
             {/* Título y botón Nueva Categoría */}
@@ -266,6 +318,8 @@ const Categorias = () => {
                             categorias={categoriasPaginadas}
                             abrirModalEdicion={abrirModalEdicion}
                             abrirModalEliminacion={abrirModalEliminacion}
+                            generarPDFCategoria={generarPDFCategoria}
+                            copiarCategoria={copiarCategoria}
                         />
                     </Col>
                     <Col lg={12} className="d-none d-lg-block">
@@ -273,6 +327,8 @@ const Categorias = () => {
                             categorias={categoriasPaginadas}
                             abrirModalEdicion={abrirModalEdicion}
                             abrirModalEliminacion={abrirModalEliminacion}
+                            generarPDFCategoria={generarPDFCategoria}
+                            copiarCategoria={copiarCategoria}
                         />
                     </Col>
                 </Row>
@@ -324,6 +380,8 @@ const Categorias = () => {
                 tipo={toast.tipo}
                 onCerrar={() => setToast({ ...toast, mostrar: false })}
             />
+
+
         </Container>
     );
 }; export default Categorias;

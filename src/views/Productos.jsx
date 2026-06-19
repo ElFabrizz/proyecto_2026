@@ -8,6 +8,9 @@ import ModalEdicionProducto from "../components/productos/ModalEdicionProducto";
 import ModalEliminacionProducto from "../components/productos/ModalEliminacionProducto";
 import TablaProductos from "../components/productos/TablaProductos";
 import TarjetaProductos from "../components/productos/TarjetasProductos";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import ModalQRProducto from "../components/productos/ModalQRProducto";
 
 const Productos = () => {
     const [productos, setProductos] = useState([]);
@@ -28,10 +31,12 @@ const Productos = () => {
     const [toast, setToast] = useState({ mostrar: false, mensaje: "", tipo: "" });
     const [textoBusqueda, setTextoBusqueda] = useState("");
     const [mostrarModal, setMostrarModal] = useState(false);
-const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
+    const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
     const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
     const [productoEditar, setProductoEditar] = useState(null);
     const [archivoActualizar, setArchivoActualizar] = useState(null);
+    const [mostrarModalQR, setMostrarModalQR] = useState(false);
+    const [productoQR, setProductoQR] = useState(null);
 
 
     // Manejo de inputs
@@ -308,6 +313,77 @@ const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
         }
     };
 
+    const generarPDFProducto = (producto) => {
+        const doc = new jsPDF();
+
+        doc.setFontSize(18);
+        doc.text("Reporte de Producto", 14, 20);
+
+        doc.line(14, 25, 195, 25);
+
+        autoTable(doc, {
+            startY: 35,
+            head: [["Campo", "Valor"]],
+            body: [
+                ["ID", producto.id_producto],
+                ["Nombre", producto.nombre_producto],
+                ["Descripción", producto.descripcion_producto],
+                ["Precio", `C$ ${producto.precio_producto}`],
+                ["Stock", producto.stock_producto],
+                ["Imagen", producto.imagen_producto || "Sin imagen"],
+                ["ID Categoría", producto.id_categoria],
+                ["Fecha de registro", producto.fecha_registro],
+            ],
+        });
+
+        doc.save(`producto_${producto.id_producto}.pdf`);
+    };
+
+    const copiarProducto = async (producto) => {
+        if (!producto) return;
+
+        const texto = `
+ID: ${producto.id_producto}
+Producto: ${producto.nombre_producto}
+Descripción: ${producto.descripcion_producto || "Sin descripción"}
+Precio: C$ ${producto.precio_venta || 0}
+Categoría ID: ${producto.categoria_id || "Sin categoría"}
+Imagen: ${producto.imagen_producto || "Sin imagen"}
+    `;
+
+        try {
+            await navigator.clipboard.writeText(texto);
+
+            setToast({
+                mostrar: true,
+                mensaje: `Producto "${producto.nombre_producto}" copiado al portapapeles.`,
+                tipo: "exito",
+            });
+        } catch (error) {
+            console.error("Error al copiar:", error);
+
+            setToast({
+                mostrar: true,
+                mensaje: "No se pudo copiar el producto.",
+                tipo: "error",
+            });
+        }
+    };
+
+    const generarQRImagen = (producto) => {
+        if (!producto.imagen_producto) {
+            setToast({
+                mostrar: true,
+                mensaje: "Este producto no tiene imagen asociada.",
+                tipo: "advertencia",
+            });
+            return;
+        }
+
+        setProductoQR(producto);
+        setMostrarModalQR(true);
+    };
+
     return (
         <Container className="mt-3">
             {/* Título y botón */}
@@ -350,6 +426,9 @@ const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
                             productos={productosFiltrados}
                             abrirModalEdicion={abrirModalEdicion}
                             abrirModalEliminacion={abrirModalEliminacion}
+                            generarPDFProducto={generarPDFProducto}
+                            copiarProducto={copiarProducto}
+                            generarQRImagen={generarQRImagen}
                         />
                     </div>
 
@@ -358,6 +437,9 @@ const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
                             productos={productosFiltrados}
                             abrirModalEdicion={abrirModalEdicion}
                             abrirModalEliminacion={abrirModalEliminacion}
+                            generarPDFProducto={generarPDFProducto}
+                            copiarProducto={copiarProducto}
+                            generarQRImagen={generarQRImagen}
                         />
                     </div>
                 </>
@@ -404,8 +486,14 @@ const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
                 eliminarProducto={eliminarProducto}
                 producto={productoAEliminar}
             />
+
+            <ModalQRProducto
+                mostrar={mostrarModalQR}
+                onHide={() => setMostrarModalQR(false)}
+                producto={productoQR}
+            />
         </Container>
     );
 };
 
-export default Productos;
+export default Productos; 
